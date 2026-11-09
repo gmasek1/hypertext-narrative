@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Note | The Police Station</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Reenie+Beanie&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/note.css">
+</head>
+<body>
+  <main class="desk">
+
+    <div class="paper-wrap">
+      <div class="shadow"></div>
+
+      <!-- The sheet is three panels: it starts folded in thirds and unfolds -->
+      <div class="paper" aria-hidden="true">
+        <div class="panel mid"></div>
+        <div class="panel top"></div>
+        <div class="panel bottom"></div>
+      </div>
+      <div class="creases" aria-hidden="true"></div>
+
+      <article class="writing" aria-label="A typed note from the police chief">
+        <p class="typed" style="transform: rotate(-0.4deg)">To whoever finds this,</p>
+
+        <p class="typed" style="transform: rotate(0.3deg)">There is a gun in the squad car in the garage. Keys are in it. I made sure.</p>
+
+        <p class="typed" style="transform: rotate(-0.5deg)">I don't know how this started. One night it was a drunk and a bite. Now the east wing is gone and it is spreading <del>faster than</del> quicker than we can count.</p>
+
+        <p class="typed" style="transform: rotate(0.6deg); letter-spacing: 0.02em">Where is the damn MILITARY?? We called. We keep calling. <del>They are on their way</del> Nobody is coming.</p>
+
+        <p class="typed" style="transform: rotate(-0.3deg)">We can't keep them out any longer. I can hear them on the stairs.</p>
+
+        <p class="hand" data-speed="20">
+          Do NOT take the elevator. I heard something in it. It was not one of ours.
+        </p>
+        <p class="hand sign" data-speed="26">Get out. Please. &mdash; Halloran</p>
+      </article>
+    </div>
+
+    <nav class="choices" aria-label="What next">
+      <a href="chiefs-office.html">Put the note back</a>
+    </nav>
+
+  </main>
+
+  <script>
+    (function () {
+      var root = document.querySelector('.writing');
+      var choices = document.querySelector('.choices');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Collect every text node, remember its text, and blank it so it can be typed out.
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      var items = [], n;
+      while ((n = walker.nextNode())) {
+        if (n.nodeValue.trim()) {
+          var text = n.nodeValue.replace(/\s+/g, ' ');
+          items.push({ node: n, text: text });
+          n.nodeValue = '';
+        }
+      }
+
+      var caret = document.createElement('span');
+      caret.className = 'caret';
+      var skip = false;
+      var done = false;
+
+      function finish() {
+        items.forEach(function (it) { it.node.nodeValue = it.text; });
+        if (caret.parentNode) caret.remove();
+        done = true;
+        choices.classList.add('show');
+      }
+
+      function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+      async function type() {
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          var holder = it.node.parentElement.closest('[data-speed]');
+          var base = holder ? Number(holder.dataset.speed) : 42;
+          it.node.parentNode.insertBefore(caret, it.node.nextSibling);
+          for (var c = 0; c < it.text.length; c++) {
+            if (skip) return finish();
+            var ch = it.text[c];
+            it.node.nodeValue += ch;
+            var wait = base + Math.random() * base * 0.8;
+            if ('.?!'.indexOf(ch) > -1) wait += 280;
+            else if (ch === ',') wait += 120;
+            await sleep(wait);
+          }
+          await sleep(it.node.parentElement.tagName === 'DEL' ? 380 : 140);
+        }
+        finish();
+      }
+
+      // Click or press a key to finish the note instantly
+      function fast() { skip = true; if (!started) { started = true; finish(); } }
+      var started = false;
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        fast();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') fast(); });
+
+      if (reduce) {
+        started = true;
+        finish();
+      } else {
+        // wait for the unfold to end, then start typing
+        setTimeout(function () {
+          if (!started) { started = true; type(); }
+        }, 3500);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+:root {
+  --ink: #0d0a08;
+  --bone: #e4dac6;
+  --gold: #ffd98a;
+  --typed: #231a12;
+  --scrawl: #3b1a12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { min-height: 100%; background: var(--ink); }
+
+/* ---------- Desk ---------- */
+.desk {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 3vh 0 9vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 75% at 50% 46%, rgba(255, 186, 100, 0.24), transparent 72%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.9) 100%),
+    linear-gradient(180deg, #1c120b, #110a06);
+}
+
+/* wood grain: horizontal streaks of noise laid over the desk */
+.desk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.003 0.16' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.25 0 0 0 0 0.13 0 0 0 1.1 -0.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Paper ---------- */
+.paper-wrap {
+  position: relative;
+  width: min(92vw, calc(86vh * 1106 / 1900));
+  aspect-ratio: 1106 / 1900;
+  container-type: inline-size;
+  animation: arrive 0.8s ease-out both;
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  perspective: 2200px;
+}
+
+.panel {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 33.4%;
+  background-image: url("../img/note-paper.png");
+  background-size: 100% 300%;
+  backface-visibility: visible;
+}
+.panel.top    { top: 0;       background-position: 0 0;    transform-origin: 50% 100%; animation: unfold-top 1.3s cubic-bezier(.45, .05, .3, 1) 2s both; }
+.panel.mid    { top: 33.3%;   background-position: 0 50%; }
+.panel.bottom { top: 66.6%;   background-position: 0 100%; transform-origin: 50% 0;    animation: unfold-bottom 1.3s cubic-bezier(.45, .05, .3, 1) 0.8s both; }
+
+/* the soft shadow grows as the sheet opens */
+.shadow {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(33.3% -3rem 33.3% -3rem);
+  animation: shadow-grow 3.3s ease-in-out both;
+}
+.shadow::before {
+  content: "";
+  position: absolute;
+  inset: 0.5% 1%;
+  transform: translate(0.6cqw, 1.2cqw);
+  background: #000;
+  filter: blur(2.2cqw);
+  opacity: 0.7;
+}
+
+/* faint fold lines that stay once the sheet is open */
+.creases {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: fade-in 1.2s ease 3.1s forwards;
+  background:
+    linear-gradient(180deg, transparent calc(33.3% - 2px), rgba(60, 40, 20, 0.22) 33.3%, rgba(255, 250, 235, 0.25) calc(33.3% + 1px), transparent calc(33.3% + 4px)),
+    linear-gradient(180deg, transparent calc(66.6% - 2px), rgba(60, 40, 20, 0.22) 66.6%, rgba(255, 250, 235, 0.25) calc(66.6% + 1px), transparent calc(66.6% + 4px));
+}
+
+/* ---------- Writing ---------- */
+.writing {
+  position: absolute;
+  inset: 8.5% 12% 7% 13%;
+  mix-blend-mode: multiply;
+}
+
+.typed {
+  font-family: "Special Elite", "Courier New", Courier, monospace;
+  font-size: 3.3cqw;
+  line-height: 1.55;
+  color: var(--typed);
+  margin-bottom: 0.85em;
+  /* ink that bled a little into the paper */
+  text-shadow: 0 0 0.5px rgba(35, 26, 18, 0.7), 0.4px 0.3px 0.8px rgba(35, 26, 18, 0.35);
+}
+
+.typed del {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.25cqw;
+  text-decoration-color: var(--typed);
+}
+
+.hand {
+  font-family: "Reenie Beanie", "Segoe Script", cursive;
+  font-size: 6cqw;
+  line-height: 1.05;
+  color: var(--scrawl);
+  transform: rotate(-2.2deg);
+  margin-top: 1.1em;
+  text-shadow: 0 0 0.6px rgba(59, 26, 18, 0.8);
+}
+
+.hand.sign {
+  margin-top: 0.5em;
+  margin-left: 12%;
+  font-size: 7.2cqw;
+  transform: rotate(-3.5deg);
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--typed);
+  animation: blink 0.9s steps(1) infinite;
+}
+
+/* ---------- Choices ---------- */
+.choices {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3vh;
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.5rem, 6vw, 5rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.4s ease;
+}
+.choices.show { opacity: 1; pointer-events: auto; }
+
+.choices a {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 1.5vw, 1.35rem);
+  letter-spacing: 0.04em;
+  color: rgba(228, 218, 198, 0.7);
+  text-decoration: none;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid rgba(255, 217, 138, 0.25);
+  text-shadow: 0 0 12px #000;
+  transition: color 0.3s ease, border-color 0.3s ease, text-shadow 0.3s ease;
+}
+.choices a:hover,
+.choices a:focus-visible {
+  color: var(--bone);
+  border-color: var(--gold);
+  text-shadow: 0 0 14px rgba(255, 217, 138, 0.6);
+  outline: none;
+}
+
+/* ---------- Motion ---------- */
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(2.5vh) rotate(-1.2deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes unfold-bottom {
+  from { transform: translateZ(2px) rotateX(180deg); filter: brightness(0.72); }
+  to   { transform: none;                             filter: brightness(1); }
+}
+
+@keyframes unfold-top {
+  from { transform: translateZ(1px) rotateX(-180deg); filter: brightness(0.72); }
+  to   { transform: none;                              filter: brightness(1); }
+}
+
+@keyframes shadow-grow {
+  0%, 24% { clip-path: inset(33.3% -3rem 33.3% -3rem); }
+  63%     { clip-path: inset(33.3% -3rem -3rem -3rem); }
+  100%    { clip-path: inset(-3rem); }
+}
+
+@keyframes fade-in { to { opacity: 1; } }
+@keyframes blink   { 50% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-wrap, .panel, .shadow { animation: none; }
+  .creases { animation: none; opacity: 1; }
+  .shadow { clip-path: inset(-3rem); }
+  .choices { transition: none; }
+  .caret { animation: none; }
+}

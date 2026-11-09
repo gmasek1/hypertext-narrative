@@ -1,0 +1,198 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: #050202;
+  color: #e8dcd8;
+  font-family: Georgia, "Times New Roman", serif;
+  overflow: hidden;
+}
+
+/* ---------- Stage with rooftop background ---------- */
+.stage {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 2rem 1rem 3rem;
+  isolation: isolate;
+  background:
+    linear-gradient(rgba(10, 0, 0, 0.55), rgba(40, 0, 0, 0.75)),
+    url("../img/rooftop.png") center / cover no-repeat;
+  animation: dim 4s ease-out forwards;
+}
+
+/* The scene slowly darkens and drains of color after you die */
+@keyframes dim {
+  from { filter: none; }
+  to   { filter: saturate(0.5) brightness(0.8); }
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.9) 100%);
+  pointer-events: none;
+}
+
+/* Red flash at the moment of death */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #b00000;
+  opacity: 0;
+  pointer-events: none;
+  animation: hit 1.2s ease-out 0.4s 1 forwards;
+}
+@keyframes hit {
+  0%   { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* ---------- Tyrant silhouette ---------- */
+.tyrant {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(60vw, 520px);
+  height: 82vh;
+  transform: translateX(-50%) translateY(20%) scale(0.8);
+  z-index: -2;
+  background: #000;
+  clip-path: polygon(
+    38% 0%, 62% 0%, 66% 12%, 78% 20%, 95% 38%, 100% 100%,
+    0% 100%, 5% 38%, 22% 20%, 34% 12%
+  );
+  filter: drop-shadow(0 0 40px rgba(180, 0, 0, 0.7));
+  animation: lunge 1.2s cubic-bezier(.2, .9, .3, 1) 0.2s forwards,
+             loom 5s ease-in-out 1.4s infinite;
+}
+
+/* The Tyrant rushes toward you */
+@keyframes lunge {
+  to { transform: translateX(-50%) translateY(0) scale(1.15); }
+}
+@keyframes loom {
+  0%, 100% { transform: translateX(-50%) scale(1.15); }
+  50%      { transform: translateX(-50%) scale(1.2); }
+}
+
+.eye {
+  position: absolute;
+  top: 5%;
+  width: 7%;
+  height: 2.2%;
+  background: #ff2a1a;
+  border-radius: 50%;
+  box-shadow: 0 0 18px 6px rgba(255, 40, 20, 0.85);
+}
+.eye-left  { left: 40%; }
+.eye-right { right: 40%; }
+
+/* ---------- Claw slashes ---------- */
+.slashes { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+
+.slash {
+  position: absolute;
+  top: -10%;
+  width: 10px;
+  height: 130%;
+  background: linear-gradient(#ff2a1a, #7a0000);
+  box-shadow: 0 0 14px 3px rgba(255, 30, 20, 0.7);
+  transform-origin: top;
+  transform: rotate(-28deg) scaleY(0);
+  opacity: 0;
+  animation: slash 0.35s ease-out forwards;
+}
+.s1 { left: 30%; animation-delay: 0.6s; }
+.s2 { left: 48%; animation-delay: 0.75s; }
+.s3 { left: 66%; animation-delay: 0.9s; }
+
+@keyframes slash {
+  0%   { opacity: 1; transform: rotate(-28deg) scaleY(0); }
+  100% { opacity: 0.9; transform: rotate(-28deg) scaleY(1); }
+}
+
+/* ---------- Text ---------- */
+.heading {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 36rem;
+  text-shadow: 0 2px 14px #000;
+  opacity: 0;
+  animation: rise 1.4s ease-out 1.4s forwards;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+h1 {
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+  font-size: clamp(3.5rem, 14vw, 8rem);
+  line-height: 1;
+  margin-bottom: 1rem;
+  color: #c01010;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 30px rgba(200, 0, 0, 0.7), 0 3px 0 #000;
+}
+
+.story {
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  line-height: 1.6;
+}
+.story strong { color: #ff6a5a; }
+
+/* ---------- Back to lobby ---------- */
+.back {
+  position: relative;
+  z-index: 2;
+  margin-top: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.6rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #f2efe6;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+  font-size: clamp(1rem, 2.6vw, 1.25rem);
+  opacity: 0;
+  animation: rise 1s ease-out 2.4s forwards, beacon 1.4s ease-in-out 3.4s infinite;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.back .arrow { font-size: 1.4em; transition: transform 0.2s; }
+
+.back:hover,
+.back:focus-visible {
+  background: #f2efe6;
+  color: #050202;
+  transform: scale(1.05);
+  outline: none;
+}
+.back:hover .arrow,
+.back:focus-visible .arrow { transform: translateX(-6px); }
+
+@keyframes beacon {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 239, 230, 0.55); }
+  50%      { box-shadow: 0 0 0 14px rgba(242, 239, 230, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; }
+  .heading, .back, .slash { opacity: 1 !important; }
+  .slash { transform: rotate(-28deg) scaleY(1) !important; }
+  .tyrant { transform: translateX(-50%) scale(1.15) !important; }
+}

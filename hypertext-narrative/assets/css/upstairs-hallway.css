@@ -1,0 +1,246 @@
+:root {
+  --ink: #070404;
+  --blood: #b01414;
+  --blood-deep: #5e0707;
+  --blood-glow: rgba(190, 20, 20, 0.7);
+  --bone: #d9cfbd;
+}
+ 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+html, body { height: 100%; background: var(--ink); }
+ 
+body {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+ 
+/* Stage keeps the image ratio (1502x908) so hotspots stay on the art */
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 1502 / 908));
+  aspect-ratio: 1502 / 908;
+}
+ 
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: brightness(0.8) saturate(0.85);
+  transition: filter 0.6s ease;
+}
+ 
+/* Heavy vignette that tightens when you hover a choice */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
+  transition: background 0.6s ease;
+}
+ 
+.stage:has(.hotspot:hover)::after,
+.stage:has(.hotspot:focus-visible)::after {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.05) 30%, rgba(0, 0, 0, 0.85) 100%);
+}
+ 
+.stage:has(.hotspot:hover) .scene,
+.stage:has(.hotspot:focus-visible) .scene {
+  filter: brightness(0.62) saturate(0.8);
+}
+ 
+/* ---------- Heading ---------- */
+.heading {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+}
+ 
+.heading h1 {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 900;
+  font-size: clamp(1.4rem, 3.6vw, 3.4rem);
+  letter-spacing: 0.07em;
+  color: var(--bone);
+  text-shadow: 0 3px 0 #000, 0 0 14px rgba(120, 10, 10, 0.55), 0 0 40px #000, 0 0 80px #000;
+}
+ 
+.heading p {
+  margin-top: 0.5em;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(0.75rem, 1.3vw, 1.2rem);
+  letter-spacing: 0.05em;
+  color: rgba(217, 207, 189, 0.6);
+  text-shadow: 0 0 12px #000;
+}
+ 
+/* ---------- Hotspots ---------- */
+/* .shape is an invisible, tight click target. The visible effect is a soft,
+   blurred light that spills from each doorway, as if a lamp came on around the corner. */
+.hotspot {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 3;
+  text-decoration: none;
+  outline: none;
+  pointer-events: none;
+}
+ 
+.hotspot .shape {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  background: transparent;
+}
+ 
+.hotspot::before,
+.hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  filter: blur(clamp(6px, 1.1vw, 18px));
+  animation: breathe 5s ease-in-out infinite;
+}
+ 
+/* light leaking out of the doorway */
+.hotspot::before {
+  background: radial-gradient(ellipse 4.5% 13% at var(--dx) var(--dy),
+    rgba(255, 226, 180, 0.55), rgba(255, 200, 140, 0.2) 55%, transparent 100%);
+}
+ 
+/* faint spill across the floor in front of it */
+.hotspot::after {
+  background: radial-gradient(ellipse 8% 4.5% at var(--fx) var(--fy),
+    rgba(255, 214, 160, 0.35), transparent 100%);
+}
+ 
+.hotspot:hover::before, .hotspot:hover::after,
+.hotspot:focus-visible::before, .hotspot:focus-visible::after {
+  opacity: 0.9;
+  animation: lightson 1s linear both;
+}
+ 
+.hotspot-left  { --lx: 33%; --ly: 72%; --dx: 42%; --dy: 42%; --fx: 42%; --fy: 62%; }
+.hotspot-right { --lx: 73%; --ly: 72%; --dx: 62%; --dy: 42%; --fx: 61%; --fy: 63%; }
+ 
+/* Small click areas: each doorway plus a patch of floor in front of it */
+.hotspot-left .shape {
+  clip-path: polygon(38.1% 33%, 41.8% 30%, 44.1% 31.7%, 45.9% 48.5%,
+    48% 58%, 45% 70%, 36% 70%, 34.8% 67.4%, 38.1% 60.4%);
+}
+ 
+.hotspot-right .shape {
+  clip-path: polygon(57.9% 48.5%, 59.6% 31.7%, 62.2% 30%, 64.7% 33%,
+    64.9% 60.4%, 67% 69%, 56% 70%, 56.5% 58%);
+}
+ 
+/* ---------- Labels ---------- */
+.label {
+  position: absolute;
+  left: var(--lx);
+  top: var(--ly);
+  transform: translate(-50%, calc(-50% + 8px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
+  padding: 0.5em 1.1em 0.55em;
+  white-space: nowrap;
+  text-align: center;
+  background: rgba(8, 2, 2, 0.88);
+  border: 1px solid var(--blood-deep);
+  box-shadow: 0 0 22px var(--blood-glow), inset 0 0 14px rgba(94, 7, 7, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+}
+ 
+.label strong {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(0.85rem, 1.7vw, 1.6rem);
+  letter-spacing: 0.06em;
+  color: #e8dccb;
+  text-shadow: 0 0 10px rgba(190, 20, 20, 0.8);
+}
+ 
+.label em {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(0.65rem, 1.05vw, 1rem);
+  color: #c43232;
+  letter-spacing: 0.1em;
+}
+ 
+.hotspot:hover .label,
+.hotspot:focus-visible .label {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  animation: tremble 0.18s linear infinite 0.5s;
+}
+ 
+/* ---------- Back link ---------- */
+.back {
+  position: absolute;
+  left: 2%;
+  bottom: 3%;
+  z-index: 4;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(0.75rem, 1.2vw, 1.1rem);
+  color: rgba(217, 207, 189, 0.55);
+  text-decoration: none;
+  text-shadow: 0 0 10px #000;
+  transition: color 0.3s ease;
+}
+.back:hover, .back:focus-visible { color: var(--bone); outline: none; }
+ 
+/* ---------- Motion ---------- */
+@keyframes breathe {
+  0%, 100% { opacity: 0.08; }
+  50%      { opacity: 0.2; }
+}
+ 
+/* a lamp switching on: a few stutters, then it holds */
+@keyframes lightson {
+  0%   { opacity: 0; }
+  8%   { opacity: 0.7; }
+  12%  { opacity: 0.1; }
+  22%  { opacity: 0.85; }
+  28%  { opacity: 0.3; }
+  38%  { opacity: 0.9; }
+  100% { opacity: 0.9; }
+}
+ 
+@keyframes tremble {
+  0%   { translate: 0 0; }
+  25%  { translate: 0.5px -0.5px; }
+  50%  { translate: -0.5px 0.5px; }
+  75%  { translate: 0.5px 0.5px; }
+  100% { translate: 0 0; }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  .hotspot::before, .hotspot::after,
+  .hotspot:hover::before, .hotspot:hover::after,
+  .hotspot:focus-visible::before, .hotspot:focus-visible::after,
+  .hotspot:hover .label, .hotspot:focus-visible .label { animation: none; }
+  .scene, .stage::after, .label { transition: none; }
+}
+ 
+@media (max-aspect-ratio: 1/1) {
+  .heading { top: 2%; }
+}
